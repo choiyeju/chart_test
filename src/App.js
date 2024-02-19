@@ -1,5 +1,5 @@
 import './App.css';
-import ChartBar from "chart/ChartBar";
+import ChartBar from "./charts/ChartBar";
 
 function App() {
   return (

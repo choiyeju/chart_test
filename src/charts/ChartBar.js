@@ -3,7 +3,7 @@ import { Chart as ChartJS } from "chart.js";
 import "chart.js/auto";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Bar } from 'react-chartjs-2';
-// import { onCaptrue } from "../hooks/Capture";
+import { handleCaptrue } from "utils/Capture";
 
 ChartJS.register(ChartDataLabels);
 
@@ -22,7 +22,7 @@ const ChartBar = () => {
                     datasets: datasets,
                 }} style={styles}/>
             </div>
-            {/*<button onClick={() => onCaptrue("chart_bar")}>BUTTON</button>*/}
+            <button onClick={() => handleCaptrue("chart_bar")}>BUTTON</button>
             <button onClick={handleAvgButton}>AVG BUTTON</button>
         </>
     )
