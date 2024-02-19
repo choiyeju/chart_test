@@ -1,10 +1,12 @@
 import './App.css';
-import ChartBar from "./charts/ChartBar";
+import ChartBar from "charts/ChartBar";
+import ChartLine from "charts/ChartLine";
 
 function App() {
   return (
     <div className="App">
-      <ChartBar/>
+        <ChartBar/>
+        <ChartLine/>
     </div>
   );
 }
