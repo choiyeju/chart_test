@@ -1,18 +1,12 @@
 import './App.css';
-import ChartBar from "charts/ChartBar";
-import ChartLine from "charts/ChartLine";
-import NivoBar from "nivo/NivoBar";
-import NivoLine from "nivo/NivoLine";
+import { useRoutes } from 'react-router-dom';
+
+import routes from './routes';
 
 function App() {
-  return (
-    <div className="App">
-        <ChartBar/>
-        <ChartLine/>
-        <NivoBar/>
-        <NivoLine/>
-    </div>
-  );
+    const routing = useRoutes(routes);
+
+    return routing;
 }
 
 export default App;
