@@ -14,7 +14,7 @@ export const ChartOtbBarLine = ({ text, minMax, gap, lowHigh, labels, datas }) =
 
     const label = (data) => {
         if (data.dataset.borderColor === '#48a4ff') {
-            const state = lowHigh[0] <= data.parsed.y && data.parsed.y <= lowHigh[1]? "Normal": "Abnormal(NCS)";
+            const state = lowHigh[0] <= data.parsed.y && data.parsed.y <= lowHigh[1]? "Normal": data.parsed.y > lowHigh[1]? "Abnormal(CS)": "Abnormal(NCS)";
             return ` Hemoglobin: ${data.parsed.y} g/dL (${state})`;
         }
         return null;
@@ -194,10 +194,9 @@ const lowDataset = (low = 0) => {
     return {
         type: 'line',
         data: Array.from({ length: 16 }, () => low),
-        borderColor: 'blue',
-        hoverBorderColor: 'white',
-        hoverBackgroundColor: 'white',
+        borderColor: 'black',
         borderWidth: 1,
+        hoverBorderColor: 'red',
         borderDash: [4, 4],
         pointRadius: 0,
         pointBorderWidth: 0,
@@ -221,6 +220,8 @@ const mainDataset = (low, high, data) =>  {
         backgroundColor: (data) => {
             if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
                 return 'green';
+            } else if (data.parsed && data.parsed.y > high) {
+                return 'red';
             } else {
                 return 'blue';
             }
@@ -228,6 +229,8 @@ const mainDataset = (low, high, data) =>  {
         pointBorderColor: (data) => {
             if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
                 return 'green';
+            } else if (data.parsed && data.parsed.y > high) {
+                return 'red';
             } else {
                 return 'blue';
             }
