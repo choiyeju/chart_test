@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Chart as ChartJS } from "chart.js";
 import "chart.js/auto";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
@@ -8,19 +8,52 @@ import { handleCaptrue } from "utils/Capture";
 ChartJS.register(ChartDataLabels);
 
 const ChartBar = () => {
+    const [isClick, setIsClick] = useState(false);
+    const [footerVal, setFooterVal] = useState("");
     const [datasets, setDatasets] = useState([...data, ...avgData]);
+
+    const onClick = () => {
+        if (isClick) setIsClick(false);
+        else setIsClick(true);
+    };
+    const footer = () => {
+        return footerVal;
+    };
+
     const handleAvgButton = () => {
         if (datasets.length > 2) setDatasets(data);
         else setDatasets([...data, ...avgData]);
     }
 
+    useEffect(() => {
+        const footerFn = isClick? "click" : "";
+        setFooterVal(footerFn);
+    }, [isClick]);
+
     return (
         <>
             <div id="chart_bar" style={{height: 500, width: "100%"}}>
-                <Bar options={options} data={{
-                    labels: labels,
-                    datasets: datasets,
-                }} style={styles}/>
+                <Bar
+                    options={{
+                        ...options,
+                        onClick,
+                        plugins: {
+                            ...options.plugins,
+                            tooltip: {
+                                ...options.plugins.tooltip,
+                                callbacks: {
+                                    ...options.plugins.tooltip.callbacks,
+                                    footer,
+                                }
+                            }
+                        }
+                    }}
+                    data={{
+                        labels: labels,
+                        datasets: datasets,
+                    }}
+                    style={styles}
+                />
             </div>
             <button onClick={() => handleCaptrue("chart_bar")}>BUTTON</button>
             <button onClick={handleAvgButton}>AVG BUTTON</button>
@@ -28,7 +61,7 @@ const ChartBar = () => {
     )
 }
 
-const options = {
+let options = {
     maintainAspectRatio: false,
     scales: {
         x: {
@@ -70,6 +103,11 @@ const options = {
             },
         },
     },
+    events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
+    // onClick: () => {
+    //     console.log("click");
+    //     return "Hi";
+    // },
     interaction: {
         intersect: false,
         mode: 'index',
@@ -106,9 +144,9 @@ const options = {
                     if (data.dataset.backgroundColor === 'blue' || data.dataset.backgroundColor === 'red') return data.parsed.y;
                     return null;
                 },
-                footer: () => {
-                    return "Hi";
-                },
+                // footer: () => {
+                //     return "Hi";
+                // },
             }
         },
     },
