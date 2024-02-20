@@ -94,6 +94,9 @@ const options = {
                 return 1;
             }
         },
+        legend: {
+            display: false
+        },
         tooltip: {
             callbacks: {
                 title: () => {
@@ -104,17 +107,14 @@ const options = {
                     return null;
                 },
                 footer: () => {
-                    return null;
+                    return "Hi";
                 },
             }
         },
-        legend: {
-            display: false
-        },
     },
-}
+};
 
-const labels = ['0', '1', '2', '3', '4', '7']
+const labels = ['0', '1', '2', '3', '4', '7'];
 
 const data =  [
     {
@@ -122,9 +122,10 @@ const data =  [
         data: [18.1, 17.5, 17.4, 18.1, 17.4, 18.3],
         borderColor: '#48a4ff',
         borderWidth: 2,
-        pointRadius: 6,
+        pointRadius: 5,
         backgroundColor: 'blue',
         pointBorderColor: 'blue',
+        pointHoverRadius: 8,
         // pointHoverBackgroundColor: 'red',
         // pointHoverBorderColor: 'red',
         tension: 0.3,
@@ -133,7 +134,6 @@ const data =  [
         barPercentage: 1,
         categoryPercentage: 1,
         data: [20.0, 20.0, 20.0, 20.0, 20.0, 20.0],
-        pointRadius: 6,
         backgroundColor: 'transparent',
         hoverBackgroundColor: 'rgba(0, 0, 0, .1)',
         datalabels: {
@@ -142,7 +142,7 @@ const data =  [
         },
         tension: 0.3,
     },
-]
+];
 
 const avgData = [{
     type: 'line',
@@ -150,19 +150,21 @@ const avgData = [{
     borderColor: 'red',
     borderWidth: 1,
     borderDash: [4, 4],
-    pointRadius: 6,
+    pointRadius: 5,
     pointBorderWidth: 2,
     backgroundColor:  'red',
     pointBorderColor: 'black',
+    pointHoverRadius: 5,
+    pointHoverBorderWidth: 2,
     datalabels: {
         color: 'transparent',
         backgroundColor: 'transparent',
     },
     tension: 0.3,
-}]
+}];
 
 const styles = {
     backgroundColor: 'transparent'
-}
+};
 
 export default ChartBar;
