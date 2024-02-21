@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import "chart.js/auto";
 import { Bar } from 'react-chartjs-2';
 import { handleCaptrue } from "utils/Capture";
+import { colors } from "theme";
 
 export const ChartOtbBarLine =
     ({
@@ -17,7 +18,7 @@ export const ChartOtbBarLine =
 
     const [isClick, setIsClick] = useState(false);
     const [scales, setScales] = useState(options.scales);
-    const [datasets] = useState([ mainDataset(low, high, datas), lowDataset(low), highDataset(high), basicDataset(max)]);
+    const [datasets] = useState([ mainDataset(low, high, datas, (low - min) / (max - min), (high - min) / (max - min)), lowDataset(low), highDataset(high), basicDataset(max)]);
 
     const onClick = () => {
         if (isClick) setIsClick(false);
@@ -126,6 +127,91 @@ let options = {
     },
 };
 
+function getGradient(ctx, chartArea, gLow, gHigh) {
+    let gradient;
+    if (!gradient) {
+        // Create the gradient because this is either the first render
+        // or the size of the chart has changed
+        gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+
+        const newGLow = gLow - 0.1 > 0? gLow - 0.1: 0;
+        const newGHigh = gHigh + 0.1 > 1? 1: gHigh + 0.1;
+        gradient.addColorStop(newGLow, 'blue');
+        gradient.addColorStop(gLow, colors.MANTIS_GREEN);
+        gradient.addColorStop(gHigh, colors.MANTIS_GREEN);
+        gradient.addColorStop(newGHigh, 'red');
+    }
+
+    return gradient;
+}
+
+const mainDataset = (low, high, data, gLow, gHigh) =>  {
+    return {
+        type: 'line',
+        data: data,
+
+        // 배경
+
+        // 선
+        borderWidth: 2,
+        borderColor: function(context) {
+            const chart = context.chart;
+            const {ctx, chartArea} = chart;
+
+            if (!chartArea) {
+                // This case happens on initial chart load
+                return;
+            }
+            return getGradient(ctx, chartArea, gLow, gHigh);
+        },
+
+        // 포인트
+        pointRadius: 4,
+        pointHoverRadius: 8,
+        backgroundColor: (data) => {
+            if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
+                return colors.SEA_GREEN;
+            } else if (data.parsed && data.parsed.y > high) {
+                return 'red';
+            } else {
+                return 'blue';
+            }
+        }, // point 색상
+        hoverBackgroundColor: (data) => {
+            if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
+                return colors.SEA_GREEN;
+            } else if (data.parsed && data.parsed.y > high) {
+                return 'red';
+            } else {
+                return 'blue';
+            }
+        },
+
+        // 포인트 border
+        pointBorderWidth: 0,
+        pointHoverBorderWidth: 4,
+        pointBorderColor: (data) => {
+            if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
+                return 'white';
+            } else if (data.parsed && data.parsed.y > high) {
+                return 'red';
+            } else {
+                return 'blue';
+            }
+        },
+        pointHoverBorderColor: (data) => {
+            if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
+                return 'rgb(186, 225, 200)';
+            } else if (data.parsed && data.parsed.y > high) {
+                return 'rgb(245, 184, 187)';
+            } else {
+                return 'rgb(181, 208, 251)';
+            }
+        },
+        tension: 0.3,
+    }
+}
+
 const basicDataset = max => {
     return {
         barPercentage: 1,
@@ -178,37 +264,6 @@ const lowDataset = (low = 0) => {
         tension: 0.3,
     }
 };
-
-const mainDataset = (low, high, data) =>  {
-    return {
-        type: 'line',
-        data: data,
-        borderColor: 'green',
-        borderWidth: 2,
-        pointRadius: 5,
-        backgroundColor: (data) => {
-            if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
-                return 'green';
-            } else if (data.parsed && data.parsed.y > high) {
-                return 'red';
-            } else {
-                return 'blue';
-            }
-        },
-        pointBorderColor: (data) => {
-            if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
-                return 'green';
-            } else if (data.parsed && data.parsed.y > high) {
-                return 'red';
-            } else {
-                return 'blue';
-            }
-        },
-        pointHoverRadius: 8,
-        tension: 0.3,
-    }
-}
-
 
 const styles = {
     backgroundColor: 'transparent'
