@@ -3,27 +3,49 @@ import "chart.js/auto";
 import { Bar } from 'react-chartjs-2';
 import { handleCaptrue } from "utils/Capture";
 
-export const ChartOtbBarLine = ({ text, minMax, gap, lowHigh, labels, datas }) => {
+export const ChartOtbBarLine =
+    ({
+        text = { x: "Visit", y: "" },
+        min = 0,
+        max = 10,
+        gap = 1,
+        low,
+        high,
+        labels,
+        datas
+    }) => {
+
     const [isClick, setIsClick] = useState(false);
-    const [datasets] = useState([ mainDataset(lowHigh[0], lowHigh[1], datas), lowDataset(lowHigh[0]), highDataset(lowHigh[1]), basicDataset(minMax[1]) ]);
+    const [scales, setScales] = useState(options.scales);
+    const [datasets] = useState([ mainDataset(low, high, datas), lowDataset(low), highDataset(high), basicDataset(max)]);
 
     const onClick = () => {
         if (isClick) setIsClick(false);
         else setIsClick(true);
     };
 
+    // plugins.tooltip.callbacks
     const label = (data) => {
         if (data.dataset.borderColor === '#48a4ff') {
-            const state = lowHigh[0] <= data.parsed.y && data.parsed.y <= lowHigh[1]? "Normal": data.parsed.y > lowHigh[1]? "Abnormal(CS)": "Abnormal(NCS)";
+            const state = low <= data.parsed.y && data.parsed.y <= high ? "Normal": data.parsed.y > high ? "Abnormal(CS)": "Abnormal(NCS)";
             return ` Hemoglobin: ${data.parsed.y} g/dL (${state})`;
         }
         return null;
         // return data;
     };
-    const footer = (data) => {
-        const footerVal = isClick? data[0].parsed.y : "";
-        return footerVal;
+    const afterBody = (data) => {
+        return isClick? data[0].parsed.y : "";
     };
+
+    useEffect(() => {
+        let newScales = JSON.parse(JSON.stringify(scales));
+        newScales.x.title.text = text.x;
+        newScales.y.title.text = text.y;
+        newScales.y.min = min;
+        newScales.y.max = max;
+        newScales.y.ticks.stepSize = gap;
+        setScales(newScales);
+    }, []);
 
     return (
         <>
@@ -32,39 +54,15 @@ export const ChartOtbBarLine = ({ text, minMax, gap, lowHigh, labels, datas }) =
                     options={{
                         ...options,
                         onClick,
-                        scales: {
-                            ...options.scales,
-                            x: {
-                                ...options.scales.x,
-                                title: {
-                                    ...options.scales.x.title,
-                                    text: text.x,
-                                },
-                            },
-                            y: {
-                                ...options.scales.y,
-                                min: minMax[0],
-                                max: minMax[1],
-                                title: {
-                                    ...options.scales.y.title,
-                                    text: text.y,
-                                },
-                                ticks: {
-                                    ...options.ticks,
-                                    stepSize: gap,
-                                },
-                            },
-                        },
+                        scales,
                         plugins: {
                             ...options.plugins,
                             tooltip: {
-                                ...options.plugins.tooltip,
                                 callbacks: {
-                                    ...options.plugins.tooltip.callbacks,
                                     label,
-                                    footer,
-                                }
-                            }
+                                    afterBody,
+                                },
+                            },
                         }
                     }}
                     data={{
@@ -90,11 +88,6 @@ let options = {
                 },
                 color: 'black',
                 display: true,
-                text: 'Days of treatment'
-            },
-            // display: false,
-            ticks: {
-                padding: 0,
             },
             grid: {
                 lineWidth: 0
@@ -110,16 +103,10 @@ let options = {
                 },
                 color: 'black',
                 display: true,
-                text: 'Body Weight (g)'
             },
-            // display: false,
             ticks: {
-                padding: 0,
-                stepSize: 2
-            },
-            grid: {
-                // lineWidth: 0
-            },
+                stepSize: 1,
+            }
         },
     },
     events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
@@ -135,24 +122,6 @@ let options = {
         },
         legend: {
             display: false
-        },
-        tooltip: {
-            callbacks: {
-                title: () => {
-                    // return 'Title';
-                },
-                // label: (data) => {
-                //     if (data.dataset.borderColor === '#48a4ff') {
-                //         const state = lowHigh[0] <= data.parsed.y && data.parsed.y <= lowHigh[1]? "Normal": "Abnormal(NCS)";
-                //         return `Hemoglobin: ${data.parsed.y} g/dL (${state})`;
-                //     }
-                //     return null;
-                //     // return data;
-                // },
-                // footer: () => {
-                //     return "Hi";
-                // },
-            }
         },
     },
 };
@@ -214,7 +183,7 @@ const mainDataset = (low, high, data) =>  {
     return {
         type: 'line',
         data: data,
-        borderColor: '#48a4ff',
+        borderColor: 'green',
         borderWidth: 2,
         pointRadius: 5,
         backgroundColor: (data) => {

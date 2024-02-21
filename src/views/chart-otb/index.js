@@ -5,19 +5,18 @@ import {hemoglobinData, labels, neutrophilsData} from "./data";
 const ChartOtb = () => {
     return (
         <>
+            chart border 색상 변경
             <ChartOtbBarLine
                 text={{x: "Visit", y: "Neutrophils (10/uL)"}}
-                minMax={[0, 12]}
-                gap={2}
-                lowHigh={[2, 7]}
+                min={0} max={12} gap={2}
+                low={2} high={7}
                 labels={labels}
                 datas={neutrophilsData}
             />
             <ChartOtbBarLine
                 text={{x: "Visit", y: "Hemoglobin (g/dL)"}}
-                minMax={[12, 18]}
-                gap={2}
-                lowHigh={[13, 17.7]}
+                min={12} max={18} gap={2}
+                low={13} high={17.7}
                 labels={labels}
                 datas={hemoglobinData}
             />
