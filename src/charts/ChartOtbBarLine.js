@@ -17,17 +17,40 @@ export const ChartOtbBarLine =
     }) => {
 
     const [isClick, setIsClick] = useState(false);
+    const [isHover, setIsHover] = useState(false);
     const [scales, setScales] = useState(options.scales);
-    const [datasets] = useState([ mainDataset(low, high, datas, (low - min) / (max - min), (high - min) / (max - min)), lowDataset(low), highDataset(high), basicDataset(max)]);
+    const [datasets, setDatasets] = useState([
+        mainDataset(low, high, datas, (low - min) / (max - min), (high - min) / (max - min)),
+        lowDataset(low),
+        highDataset(high),
+        basicDataset(max),
+    ]);
 
     const onClick = () => {
         if (isClick) setIsClick(false);
         else setIsClick(true);
     };
+    const onMouseEnter = () => {
+        setIsHover(true);
+    };
+    const onMouseLeave = () => {
+        setIsHover(false);
+    };
+
+    const borderWidth = () => {
+        if (isHover) return 3;
+        else return 2;
+    };
+    const borderColor = (r, g, b) => {
+        return () => {
+            if (isHover) return `rgba(${r}, ${g}, ${b}, .2)`;
+            else return `rgba(${r}, ${g}, ${b}, 1)`;
+        }
+    };
 
     // plugins.tooltip.callbacks
     const label = (data) => {
-        if (data.dataset.borderColor === '#48a4ff') {
+        if (data.dataset.kind === "main") {
             const state = low <= data.parsed.y && data.parsed.y <= high ? "Normal": data.parsed.y > high ? "Abnormal(CS)": "Abnormal(NCS)";
             return ` Hemoglobin: ${data.parsed.y} g/dL (${state})`;
         }
@@ -48,6 +71,14 @@ export const ChartOtbBarLine =
         setScales(newScales);
     }, []);
 
+    useEffect(() => {
+        let newDatasets = datasets.slice();
+        newDatasets[0] = {...datasets[0], borderWidth}
+        newDatasets[1] = {...datasets[1], borderColor: borderColor(0, 0, 0)}
+        newDatasets[2] = {...datasets[2], borderColor: borderColor(255, 0, 0)}
+        setDatasets(newDatasets);
+    }, [isHover]);
+
     return (
         <>
             <div id="chart_bar" style={{height: 500, width: "100%"}}>
@@ -60,9 +91,13 @@ export const ChartOtbBarLine =
                             ...options.plugins,
                             tooltip: {
                                 callbacks: {
+                                    ...options.plugins.tooltip.callbacks,
                                     label,
                                     afterBody,
                                 },
+                            },
+                            beforeEvent: () => {
+                                console.log("event")
                             },
                         }
                     }}
@@ -71,6 +106,8 @@ export const ChartOtbBarLine =
                         datasets: datasets,
                     }}
                     style={styles}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
                 />
             </div>
             <button onClick={() => handleCaptrue("chart_bar")}>BUTTON</button>
@@ -90,6 +127,14 @@ let options = {
                 color: 'black',
                 display: true,
             },
+            ticks: {
+                padding: 12,
+                stepSize: 1,
+                font: {
+                    size: 16,
+                    weight: 600,
+                },
+            },
             grid: {
                 lineWidth: 0
             },
@@ -106,11 +151,16 @@ let options = {
                 display: true,
             },
             ticks: {
+                padding: 8,
                 stepSize: 1,
-            }
+                font: {
+                    size: 16,
+                    weight: 600,
+                },
+            },
         },
     },
-    events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
+    events: ['mouseout', 'mousemove', 'click'],
     interaction: {
         intersect: false,
         mode: 'index',
@@ -124,6 +174,10 @@ let options = {
         legend: {
             display: false
         },
+        tooltip: {
+            callbacks: {
+            },
+        },
     },
 };
 
@@ -134,26 +188,27 @@ function getGradient(ctx, chartArea, gLow, gHigh) {
         // or the size of the chart has changed
         gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
 
-        const newGLow = gLow - 0.1 > 0? gLow - 0.1: 0;
-        const newGHigh = gHigh + 0.1 > 1? 1: gHigh + 0.1;
-        gradient.addColorStop(newGLow, 'blue');
-        gradient.addColorStop(gLow, colors.MANTIS_GREEN);
-        gradient.addColorStop(gHigh, colors.MANTIS_GREEN);
-        gradient.addColorStop(newGHigh, 'red');
+        const newGLow = gLow - 0.08 > 0? gLow - 0.08: 0;
+        const newGHigh = gHigh + 0.08 > 1? 1: gHigh + 0.08;
+        gradient.addColorStop(newGLow, '#5b73ff');
+        gradient.addColorStop(gLow, colors.SAGE_GREEN);
+        gradient.addColorStop(gHigh, colors.SAGE_GREEN);
+        gradient.addColorStop(newGHigh, 'rgba(255, 120, 120, 1)');
     }
 
     return gradient;
 }
 
-const mainDataset = (low, high, data, gLow, gHigh) =>  {
+const mainDataset = (low, high, data, gLow, gHigh, borderWidth) =>  {
     return {
         type: 'line',
+        kind: 'main',
         data: data,
 
         // 배경
 
         // 선
-        borderWidth: 2,
+        borderWidth,
         borderColor: function(context) {
             const chart = context.chart;
             const {ctx, chartArea} = chart;
@@ -177,28 +232,12 @@ const mainDataset = (low, high, data, gLow, gHigh) =>  {
                 return 'blue';
             }
         }, // point 색상
-        hoverBackgroundColor: (data) => {
-            if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
-                return colors.SEA_GREEN;
-            } else if (data.parsed && data.parsed.y > high) {
-                return 'red';
-            } else {
-                return 'blue';
-            }
-        },
+        // hoverBackgroundColor: '',
 
         // 포인트 border
         pointBorderWidth: 0,
         pointHoverBorderWidth: 4,
-        pointBorderColor: (data) => {
-            if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
-                return 'white';
-            } else if (data.parsed && data.parsed.y > high) {
-                return 'red';
-            } else {
-                return 'blue';
-            }
-        },
+        pointBorderColor: 'white',
         pointHoverBorderColor: (data) => {
             if (data.parsed && low <= data.parsed.y && data.parsed.y <= high) {
                 return 'rgb(186, 225, 200)';
@@ -212,7 +251,7 @@ const mainDataset = (low, high, data, gLow, gHigh) =>  {
     }
 }
 
-const basicDataset = max => {
+const basicDataset = (max) => {
     return {
         barPercentage: 1,
         categoryPercentage: 1,
@@ -227,13 +266,15 @@ const basicDataset = max => {
     }
 };
 
-const highDataset = (high = 10) => {
+const highDataset = (high = 10, borderColor) => {
     return {
         type: 'line',
         data: Array.from({ length: 16 }, () => high),
-        borderColor: 'red',
-        borderWidth: 1,
-        borderDash: [4, 4],
+
+        borderColor,
+        borderWidth: 1.6,
+        borderDash: [6, 6],
+
         pointRadius: 0,
         pointBorderWidth: 0,
         pointHoverRadius: 0,
@@ -243,25 +284,33 @@ const highDataset = (high = 10) => {
             backgroundColor: 'transparent',
         },
         tension: 0.3,
+        animation: {
+            duration: 0
+        },
     }};
 
-const lowDataset = (low = 0) => {
+const lowDataset = (low = 0, borderColor) => {
     return {
         type: 'line',
         data: Array.from({ length: 16 }, () => low),
-        borderColor: 'black',
-        borderWidth: 1,
-        hoverBorderColor: 'red',
-        borderDash: [4, 4],
+
+        borderColor,
+        borderWidth: 1.6,
+        borderDash: [6, 6],
+
         pointRadius: 0,
         pointBorderWidth: 0,
         pointHoverRadius: 0,
         pointHoverBorderWidth: 0,
+
         datalabels: {
             color: 'transparent',
             backgroundColor: 'transparent',
         },
         tension: 0.3,
+        animation: {
+            duration: 0
+        },
     }
 };
 
