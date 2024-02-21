@@ -38,27 +38,46 @@ export const ChartOtbBarLine =
     };
 
     const borderWidth = () => {
-        if (isHover) return 3;
+        if (isHover) return 4;
         else return 2;
     };
-    const borderColor = (r, g, b) => {
+    const lineBorderColor = (r, g, b) => {
         return () => {
-            if (isHover) return `rgba(${r}, ${g}, ${b}, .2)`;
+            if (isHover) return `rgba(${r}, ${g}, ${b}, .18)`;
             else return `rgba(${r}, ${g}, ${b}, 1)`;
         }
     };
 
     // plugins.tooltip.callbacks
+    const borderColor = (data) => {
+        try {
+            return low <= data.tooltipItems[0].parsed.y && data.tooltipItems[0].parsed.y <= high ? colors.SEA_GREEN : data.tooltipItems[0].parsed.y > high ? 'red' : 'blue';
+        } catch (err) {
+            return 'transparent';
+        }
+    };
+    const backgroundColor = (data) => {
+        try {
+            return low <= data.tooltipItems[0].parsed.y && data.tooltipItems[0].parsed.y <= high ? 'rgb(186, 225, 200)' : data.tooltipItems[0].parsed.y > high ? 'rgb(245, 184, 187)' : 'rgb(181, 208, 251)';
+        } catch (err) {
+            return 'transparent';
+        }
+    };
     const label = (data) => {
         if (data.dataset.kind === "main") {
-            const state = low <= data.parsed.y && data.parsed.y <= high ? "Normal": data.parsed.y > high ? "Abnormal(CS)": "Abnormal(NCS)";
+            const state = low <= data.parsed.y && data.parsed.y <= high ? 'Normal': data.parsed.y > high ? 'Abnormal(CS)': 'Abnormal(NCS)';
             return ` Hemoglobin: ${data.parsed.y} g/dL (${state})`;
         }
         return null;
         // return data;
     };
     const afterBody = (data) => {
-        return isClick? data[0].parsed.y : "";
+        const BASIC_MENT = `Site: Severans Hospital, Yonsei University Health System\nSubjectID: 01-001\nTest Date: 2022-01-25`;
+        return BASIC_MENT + (
+            isClick?
+                `\n클릭하셨어요?${data[0].parsed.y}` :
+                ''
+        );
     };
 
     useEffect(() => {
@@ -74,8 +93,8 @@ export const ChartOtbBarLine =
     useEffect(() => {
         let newDatasets = datasets.slice();
         newDatasets[0] = {...datasets[0], borderWidth}
-        newDatasets[1] = {...datasets[1], borderColor: borderColor(0, 0, 0)}
-        newDatasets[2] = {...datasets[2], borderColor: borderColor(255, 0, 0)}
+        newDatasets[1] = {...datasets[1], borderColor: lineBorderColor(0, 0, 0)}
+        newDatasets[2] = {...datasets[2], borderColor: lineBorderColor(255, 0, 0)}
         setDatasets(newDatasets);
     }, [isHover]);
 
@@ -90,14 +109,14 @@ export const ChartOtbBarLine =
                         plugins: {
                             ...options.plugins,
                             tooltip: {
+                                ...options.plugins.tooltip,
+                                borderColor,
+                                backgroundColor,
                                 callbacks: {
                                     ...options.plugins.tooltip.callbacks,
                                     label,
                                     afterBody,
                                 },
-                            },
-                            beforeEvent: () => {
-                                console.log("event")
                             },
                         }
                     }}
@@ -175,6 +194,15 @@ let options = {
             display: false
         },
         tooltip: {
+            titleFont: {
+                size: 16,
+            },
+            titleColor: 'black',
+            bodyFont: {
+                size: 15,
+            },
+            bodyColor: 'black',
+            borderWidth: 3,
             callbacks: {
             },
         },
