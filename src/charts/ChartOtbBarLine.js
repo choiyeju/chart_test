@@ -186,9 +186,9 @@ let options = {
     },
     plugins: {
         datalabels: {
-            display: function(context) {
+            display: (context) => {
                 return 0;
-            }
+            },
         },
         legend: {
             display: false
@@ -209,7 +209,7 @@ let options = {
     },
 };
 
-function getGradient(ctx, chartArea, gLow, gHigh) {
+const getGradient = (ctx, chartArea, gLow, gHigh) => {
     let gradient;
     if (!gradient) {
         // Create the gradient because this is either the first render
@@ -237,7 +237,7 @@ const mainDataset = (low, high, data, gLow, gHigh, borderWidth) =>  {
 
         // 선
         borderWidth,
-        borderColor: function(context) {
+        borderColor: (context) => {
             const chart = context.chart;
             const {ctx, chartArea} = chart;
 
