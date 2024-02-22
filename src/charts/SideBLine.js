@@ -190,9 +190,15 @@ let options = {
         datalabels: {
             color: 'black',
             font: {
-                size: 16,
+                size: 14,
                 weight: 600,
             },
+            borderWidth: (data) => {
+                if (data.dataset.kind === 'main') return 1;
+            },
+            borderRadius: 8,
+            borderColor: 'black',
+            backgroundColor: 'rgba(255, 255, 0, .1)',
             clamp: true,
             clip: true,
             anchor: 'end',
@@ -204,12 +210,13 @@ let options = {
             },
             display: function(context) {
                 return 1;
-            }
+            },
         },
         legend: {
             display: false
         },
         tooltip: {
+            displayColors: false,
             borderColor: 'rgb(135, 206, 235)',
             backgroundColor: 'white',
             titleFont: {
@@ -220,7 +227,7 @@ let options = {
                 size: 15,
             },
             bodyColor: 'black',
-            borderWidth: 3,
+            borderWidth: 2,
             callbacks: {
             },
         },
