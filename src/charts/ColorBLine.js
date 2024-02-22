@@ -78,7 +78,7 @@ export const ColorBLine =
 
     return (
         <>
-            <div id="chart_bar" style={{height: 500, width: "100%"}}>
+            <div id="color_b_line" style={{height: 500, width: "100%"}}>
                 <Bar
                     options={{
                         ...options,
@@ -161,6 +161,20 @@ let options = {
         mode: 'index',
     },
     plugins: {
+        beforeRender: function(c, options) {
+            var dataset = c.data.datasets[0];
+            var yScale = c.scales['y-axis-0'];
+            var yPos = yScale.getPixelForValue(0);
+
+            var gradientFill = c.ctx.createLinearGradient(0, 0, 0, c.height);
+            gradientFill.addColorStop(0, 'red');
+            gradientFill.addColorStop(yPos / c.height - 0.01, 'red');
+            gradientFill.addColorStop(yPos / c.height + 0.01, 'blue');
+            gradientFill.addColorStop(1, 'blue');
+
+            var model = c.data.datasets[0]._meta[Object.keys(dataset._meta)[0]].$filler.el._model;
+            model.backgroundColor = gradientFill;
+        },
         datalabels: {
             color: 'black',
             font: {
@@ -202,21 +216,20 @@ let options = {
 };
 
 const mainDataset = (data, borderWidth) =>  {
-    var ctx = document.getElementById('chart').getContext('2d');
-
-    var gradient = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient.addColorStop(0, 'rgba(224, 195, 155, 1)');
-    gradient.addColorStop(1, 'rgba(100, 100, 0,0)');
-
     return {
         type: 'line',
         kind: 'main',
         data: data,
 
         // 배경
-        fill: true,
-        // backgroundColor: gradient,
-        // backgroundColor: 'rgba(124, 181, 236, .3)',
+        fill: 'start',
+        backgroundColor: (context) => {
+            const ctx = context.chart.ctx;
+            const gradient = ctx.createLinearGradient(0, 0, 0, 500);
+            gradient.addColorStop(0, "rgba(124, 181, 236, .6)");
+            gradient.addColorStop(1, "rgba(124, 181, 236, 0)");
+            return gradient;
+        },
 
         // 선
         borderWidth,
