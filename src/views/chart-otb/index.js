@@ -1,11 +1,16 @@
 import React from 'react';
-import { LowHighBLine } from "charts";
-import { labels, neutrophilsData } from "./data";
+import { ColorBLine, LowHighBLine } from "charts";
+import {colorLabels, doesData, labels, neutrophilsData} from "./data";
 
 const ChartOtb = () => {
     return (
         <>
-            chart border 색상 변경
+            <ColorBLine
+                text={{x: "Visit", y: "Does (mg)"}}
+                min={0} max={150} gap={25}
+                labels={colorLabels}
+                datas={doesData}
+            />
             <LowHighBLine
                 text={{x: "Visit", y: "Neutrophils (10/uL)"}}
                 min={0} max={12} gap={2}
