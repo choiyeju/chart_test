@@ -112,6 +112,7 @@ export const ColorBLine =
 
 let options = {
     maintainAspectRatio: false,
+    bezierCurve: false,
     scales: {
         x: {
             title: {
@@ -187,8 +188,12 @@ let options = {
             align: '-90',
             offset: 0,
             formatter: function (value, context){
-                let result = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                return result + ' mg'
+                if (0 < context.dataIndex && context.dataIndex < context.dataset.data.length) {
+                    if (context.dataset.data[context.dataIndex - 1] !== value) {
+                        return context.dataset.data[context.dataIndex - 1] + ' to ' + value + 'mg';
+                    }
+                }
+                return value + ' mg'
             },
             display: function(context) {
                 return 1;
@@ -246,7 +251,7 @@ const mainDataset = (data, borderWidth) =>  {
         pointHoverBorderWidth: 4,
         pointBorderColor: 'white',
         pointHoverBorderColor: 'rgb(197, 217, 240)',
-        tension: 0.3,
+        tension: 0,
     }
 }
 
@@ -261,7 +266,6 @@ const basicDataset = (max) => {
             color: 'transparent',
             backgroundColor: 'transparent',
         },
-        tension: 0.3,
     }
 };
 
