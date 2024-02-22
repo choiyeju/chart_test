@@ -1,3 +1,7 @@
+export const sideLabels = ["0", "1", "2", "3", "4", "7"];
+export const bodyWeightData = [18.1, 17.5, 17.4, 18.1, 17.4, 18.3];
+export const averageData = [17.1, 17.1, 17.1, 17.1, 17.1, 17.1];
+
 export const colorLabels = ["C0D1", "C1D1", "Cycle2", "Cycle3", "Cycle4", "Cycle5", "Cycle6", "Cycle7", "Cycle9", "Cycle11", "Cycle13", "Cycle15", "Cycle17", "Cycle19", "Cycle21", "Cycle23", "Cycle25"];
 export const doesData = [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 80, 120, 120, 120, 120, 120, 120];
 

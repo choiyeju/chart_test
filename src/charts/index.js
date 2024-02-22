@@ -3,3 +3,4 @@ export * from "./ChartLine";
 export * from "./ChartOtbBarLine";
 export * from "./ColorBLine";
 export * from "./LowHighBLine";
+export * from "./SideBLine";

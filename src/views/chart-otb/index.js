@@ -1,10 +1,17 @@
 import React from 'react';
-import { ColorBLine, LowHighBLine } from "charts";
-import {colorLabels, doesData, labels, neutrophilsData} from "./data";
+import {ColorBLine, LowHighBLine, SideBLine} from "charts";
+import {averageData, bodyWeightData, colorLabels, doesData, labels, neutrophilsData, sideLabels} from "./data";
 
 const ChartOtb = () => {
     return (
         <>
+            <SideBLine
+                text={{x: "Visit", y: "Body Weight (g)"}}
+                min={0} max={20} gap={2}
+                labels={sideLabels}
+                datas={bodyWeightData}
+                sideDatas={averageData}
+            />
             <ColorBLine
                 text={{x: "Visit", y: "Does (mg)"}}
                 min={0} max={150} gap={25}
