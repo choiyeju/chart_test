@@ -1,53 +1,26 @@
 import React, {useEffect, useState} from 'react';
 import "chart.js/auto";
 import { Bar } from 'react-chartjs-2';
-import { handleCaptrue } from "utils/Capture";
 
 export const BLine =
     ({
-         text = { x: "Visit", y: "" },
-         min = 0,
-         max = 10,
-         gap = 1,
-         labels,
-         datas,
-         sideDatas,
+        text,
+        min,
+        max,
+        gap,
+        labels,
+        datas,
+        elements,
     }) => {
 
-    const [isClick, setIsClick] = useState(false);
     const [isHover, setIsHover] = useState(false);
     const [scales, setScales] = useState(options.scales);
     const [datasets, setDatasets] = useState([
-        mainDataset(datas),
-        sideDataset(sideDatas),
+        mainDataset(datas[0], elements[0]),
+        sideDataset(datas[1], elements[1]),
         basicDataset(max),
     ]);
 
-    const handleAvgButton = () => {
-        if (datasets.length > 2) {
-            setDatasets([
-                mainDataset(datas),
-                basicDataset(max),
-            ]);
-        }
-        else {
-            setDatasets([
-                mainDataset(datas),
-                sideDataset(
-                    sideDatas,
-                    'red',
-                    'red',
-                    'black'
-                ),
-                basicDataset(max),
-            ]);
-        }
-    }
-
-    const onClick = () => {
-        if (isClick) setIsClick(false);
-        else setIsClick(true);
-    };
     const onMouseEnter = () => {
         setIsHover(true);
     };
@@ -55,10 +28,16 @@ export const BLine =
         setIsHover(false);
     };
 
-    const lineBorderColor = (r, g, b) => {
+    const lineBorderWidth = (index) => {
         return () => {
-            if (isHover) return `rgba(${r}, ${g}, ${b}, .18)`;
-            else return `rgba(${r}, ${g}, ${b}, 1)`;
+            if (isHover) return elements[index].borderWidth + 2;
+            else return elements[index].borderWidth;
+        };
+    };
+    const lineBorderColor = (rgb) => {
+        return () => {
+            if (isHover) return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, .18)`;
+            else return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 1)`;
         }
     };
 
@@ -68,15 +47,6 @@ export const BLine =
             return ` Body weight: ${data.parsed.y} g`;
         }
         return null;
-    };
-    const afterBody = (data) => {
-        // const BASIC_MENT = `Site: Severans Hospital, Yonsei University Health System\nSubjectID: 01-001\nTest Date: 2022-01-25`;
-        const BASIC_MENT = ``;
-        return BASIC_MENT + (
-            isClick?
-                `\n클릭하셨어요?${data[0].parsed.y}` :
-                ''
-        );
     };
 
     useEffect(() => {
@@ -91,11 +61,15 @@ export const BLine =
 
     useEffect(() => {
         let newDatasets = datasets.slice();
+        newDatasets[0] = {
+            ...datasets[0],
+            borderWidth: lineBorderWidth(0),
+        };
         newDatasets[1] = {
             ...datasets[1],
-            borderColor: lineBorderColor(255, 0, 0),
-            pointBackgroundColor: lineBorderColor(255, 0, 0),
-            pointBorderColor: lineBorderColor(0, 0, 0)
+            borderColor: lineBorderColor(elements[1].borderColor.match(/\d+/g)),
+            pointBackgroundColor: lineBorderColor(elements[1].pointBackgroundColor.match(/\d+/g)),
+            pointBorderColor: lineBorderColor(elements[1].pointBorderColor.match(/\d+/g)),
         };
         setDatasets(newDatasets);
     }, [isHover]);
@@ -105,7 +79,6 @@ export const BLine =
             <Bar
                 options={{
                     ...options,
-                    onClick,
                     scales,
                     plugins: {
                         ...options.plugins,
@@ -114,10 +87,9 @@ export const BLine =
                             callbacks: {
                                 ...options.plugins.tooltip.callbacks,
                                 label,
-                                afterBody,
                             },
                         },
-                    }
+                    },
                 }}
                 data={{
                     labels: labels,
@@ -229,31 +201,42 @@ let options = {
     },
 };
 
-const mainDataset = (data) =>  {
+const mainDataset = (data, elements) =>  {
     return {
         type: 'line',
         kind: 'main',
         data,
 
-        // 배경
+        ...elements,
+        pointHoverRadius: elements.pointRadius + 3.5,
 
-        // 선
-        borderWidth: 2,
-        borderColor: 'rgb(135, 206, 235)',
-
-        // 포인트
-        pointRadius: 4,
-        pointHoverRadius: 8,
-        pointBackgroundColor: 'blue',
-
-        // 포인트 border
-        pointBorderWidth: 0,
-        pointHoverBorderWidth: 4,
-        pointBorderColor: 'white',
-        pointHoverBorderColor: 'rgb(197, 217, 240)',
         tension: 0.3,
     }
 }
+
+const sideDataset = (data, elements, borderColor, pointBackgroundColor, pointBorderColor) => {
+    return {
+        type: 'line',
+        data,
+
+        ...elements,
+        pointHoverBorderWidth: elements.pointBorderWidth,
+
+        // borderColor,
+        // pointBackgroundColor,
+        // pointBorderColor,
+
+        borderDash: [6, 6],
+        datalabels: {
+            color: 'transparent',
+            backgroundColor: 'transparent',
+        },
+        tension: 0.3,
+        animation: {
+            duration: 0
+        },
+    }
+};
 
 const basicDataset = (max) => {
     return {
@@ -269,33 +252,6 @@ const basicDataset = (max) => {
         tension: 0.3,
     }
 };
-
-const sideDataset = (data, borderColor, pointBackgroundColor, pointBorderColor) => {
-    return {
-        type: 'line',
-        data,
-
-        borderColor,
-        borderWidth: 1.6,
-        borderDash: [6, 6],
-
-        pointRadius: 4,
-        pointHoverRadius: 4,
-        pointBackgroundColor,
-
-        pointBorderWidth: 2,
-        pointHoverBorderWidth: 2,
-        pointBorderColor,
-
-        datalabels: {
-            color: 'transparent',
-            backgroundColor: 'transparent',
-        },
-        tension: 0.3,
-        animation: {
-            duration: 0
-        },
-    }};
 
 const styles = {
     backgroundColor: 'transparent'
