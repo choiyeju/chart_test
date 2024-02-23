@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from "react";
 import { useRecoilState } from "recoil";
-import {blineValuesState, chartTypeState} from "stores";
+import { chartOptionsState, chartTypeState } from "stores";
 
 export const SettingLayout = ({children}) => {
     const [settingType, setSettingType] = useState('axes');
     const [chartType, setChartType] = useRecoilState(chartTypeState);
 
-    const [blineValues, setBLineValues] = useRecoilState(blineValuesState);
+    const [blineValues, setBLineValues] = useRecoilState(chartOptionsState);
     const [values, setValues] = useState(null);
 
     const handleChangeText = (e, axis) => {

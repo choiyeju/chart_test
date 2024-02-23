@@ -1,45 +1,42 @@
 import React, { useState } from 'react';
+import { useRecoilState } from "recoil";
+import {chartDatasState, chartOptionsState, chartTypeState} from "stores";
+
 import { SettingLayout } from "layouts";
 import { Charts } from "components";
 import { averageDatas, bodyWeightDatas, bodyWeightLabels } from "./data";
+import {initValues} from "../../components/Charts/BLine/data";
 
 const ChartCustom = () => {
     // 이곳은 chart 타입 결정하는 곳
     // 이곳은 api로 데이터 받아오고 수정하는 곳
     
     const [isSetting, setIsSetting] = useState(false);
-    const [chartType, setChartType] = useState("bline");
-    const [chartLabels, setChartLabels] = useState();
-    const [chartDatas, setChartDatas] = useState();
+    const [, setChartType] = useRecoilState(chartTypeState);
+    const [, setChartDatas] = useRecoilState(chartDatasState);
+    const [, setChartOptions] = useRecoilState(chartOptionsState);
 
-    const handleClickButton = (type, labels, datas) => {
+    const handleClickButton = (type, labels, datas, options) => {
         setIsSetting(!isSetting);
         setChartType(type);
-        setChartLabels(labels);
-        setChartDatas(datas);
+        setChartDatas({
+            labels,
+            datas
+        });
+        setChartOptions(options);
     };
 
     return (
         <>
-            <button onClick={() => handleClickButton("bline", bodyWeightLabels, [bodyWeightDatas, averageDatas])}>SETTING</button>
+            <a href="http://localhost:3001/chart-setting" target="_blank">
+                <button onClick={() => handleClickButton("bline", bodyWeightLabels, [bodyWeightDatas, averageDatas], initValues)}>SETTING</button>
+            </a>
             <Charts
                 type="bline"
                 labels={bodyWeightLabels}
                 datas={[bodyWeightDatas, averageDatas]}
+                {...initValues}
             />
-
-            <button onClick={() => handleClickButton("line")}>SETTING</button>
-            <Charts type="line" />
-
-            {isSetting &&
-                <SettingLayout>
-                    <Charts
-                        type={chartType}
-                        labels={chartLabels}
-                        datas={chartDatas}
-                    />
-                </SettingLayout>
-            }
         </>
     )
 }

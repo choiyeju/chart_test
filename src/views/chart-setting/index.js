@@ -4,13 +4,12 @@ import { SettingLayout } from "layouts";
 import { Charts } from "components";
 
 import { useRecoilState } from "recoil";
-import { chartDatasState, chartTypeState } from "stores";
+import {chartDatasState, chartOptionsState, chartTypeState} from "stores";
 
 const ChartSetting = () => {
     const [chartType] = useRecoilState(chartTypeState);
     const [chartDatas] = useRecoilState(chartDatasState);
-
-    console.log(chartDatas);
+    const [chartOptions] = useRecoilState(chartOptionsState);
 
     return (
         <SettingLayout>
@@ -18,6 +17,7 @@ const ChartSetting = () => {
                 type={chartType}
                 labels={chartDatas.labels}
                 datas={chartDatas.datas}
+                {...chartOptions}
             />
         </SettingLayout>
     )

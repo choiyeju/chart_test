@@ -86,7 +86,7 @@ export const BLine =
     }, [isHover]);
 
     return (
-        <div id="chart_bar" style={{height: 500, width: "100%"}}>
+        <div id="chart_bar" style={{height: 600, width: "100%"}}>
             <Bar
                 options={{
                     ...options,
