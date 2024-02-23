@@ -1,5 +1,5 @@
 // recoil로 옮겨야 하는 데이터
-export const initValues = {
+export const initOptions = {
     text: {
         x: 'Visit',
         y: 'Value',

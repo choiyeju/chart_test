@@ -5,10 +5,7 @@ import { BLine } from "./BLine";
 import { chartOptionsState } from "stores";
 
 export const Charts = (props) => {
-    const { type, values } = props;
-    const [chartOptions] = useRecoilState(chartOptionsState);
-
-    if (!chartOptions) return <>데이터 가져오는 중...</>
+    const { type } = props;
 
     if (type === "bline") {
         return (

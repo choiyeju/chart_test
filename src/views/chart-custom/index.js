@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useRecoilState } from "recoil";
 import {chartDatasState, chartOptionsState, chartTypeState} from "stores";
 
 import { SettingLayout } from "layouts";
 import { Charts } from "components";
 import { averageDatas, bodyWeightDatas, bodyWeightLabels } from "./data";
-import {initValues} from "../../components/Charts/BLine/data";
+import {initOptions} from "components/Charts/BLine/data";
 
 const ChartCustom = () => {
     // 이곳은 chart 타입 결정하는 곳
@@ -14,7 +14,7 @@ const ChartCustom = () => {
     const [isSetting, setIsSetting] = useState(false);
     const [, setChartType] = useRecoilState(chartTypeState);
     const [, setChartDatas] = useRecoilState(chartDatasState);
-    const [, setChartOptions] = useRecoilState(chartOptionsState);
+    const [chartOptions, setChartOptions] = useRecoilState(chartOptionsState);
 
     const handleClickButton = (type, labels, datas, options) => {
         setIsSetting(!isSetting);
@@ -26,16 +26,20 @@ const ChartCustom = () => {
         setChartOptions(options);
     };
 
+    useEffect(() => {
+        if (!chartOptions) setChartOptions(initOptions);
+    }, [chartOptions]);
+
     return (
         <>
             <a href="http://localhost:3001/chart-setting" target="_blank">
-                <button onClick={() => handleClickButton("bline", bodyWeightLabels, [bodyWeightDatas, averageDatas], initValues)}>SETTING</button>
+                <button onClick={() => handleClickButton("bline", bodyWeightLabels, [bodyWeightDatas, averageDatas], chartOptions)}>SETTING</button>
             </a>
             <Charts
                 type="bline"
                 labels={bodyWeightLabels}
                 datas={[bodyWeightDatas, averageDatas]}
-                {...initValues}
+                {...chartOptions}
             />
         </>
     )

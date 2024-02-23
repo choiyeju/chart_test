@@ -216,7 +216,7 @@ let options = {
 const mainDataset = (data, element) =>  {
     return {
         type: 'line',
-        data,
+        data: [...data],
 
         ...element,
         pointHoverBackgroundColor: element.pointBackgroundColor,
@@ -229,7 +229,7 @@ const mainDataset = (data, element) =>  {
 const sideDataset = (data, element) => {
     return {
         type: 'line',
-        data,
+        data: [...data],
 
         ...element,
         pointHoverBorderWidth: element.pointBorderWidth,
