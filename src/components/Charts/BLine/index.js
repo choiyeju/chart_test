@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import "chart.js/auto";
 import { Bar } from 'react-chartjs-2';
+import { useRecoilState } from "recoil";
+import { chartOptionsState } from "stores";
 
 export const BLine =
     ({
@@ -15,12 +17,8 @@ export const BLine =
     }) => {
 
     const [isHover, setIsHover] = useState(false);
-    const [scales, setScales] = useState(options.scales);
-    const [datasets, setDatasets] = useState([
-        mainDataset(datas[0], elements[0]),
-        sideDataset(datas[1], elements[1]),
-        basicDataset(max),
-    ]);
+    const [options, setOptions] = useState(basicOptions);
+    const [datasets, setDatasets] = useState([]);
 
     const onMouseEnter = () => {
         setIsHover(true);
@@ -54,16 +52,6 @@ export const BLine =
     };
 
     useEffect(() => {
-        let newScales = JSON.parse(JSON.stringify(scales));
-        newScales.x.title.text = text.x;
-        newScales.y.title.text = text.y;
-        newScales.y.min = min;
-        newScales.y.max = max;
-        newScales.y.ticks.stepSize = gap;
-        setScales(newScales);
-    }, []);
-
-    useEffect(() => {
         let newDatasets = datasets.slice();
 
         for (let i = 0; i < newDatasets.length - 1; i++) {
@@ -84,25 +72,48 @@ export const BLine =
         }
         setDatasets(newDatasets);
     }, [isHover]);
+    
+    useEffect(()=>{
+        if (datas && elements) {
+            setDatasets([
+                mainDataset(datas[0], elements[0]),
+                sideDataset(datas[1], elements[1]),
+                basicDataset(max),
+            ]);
+        }
+    }, [datas]);
+
+    useEffect(()=>{
+        if (text) {
+            let scales = JSON.parse(JSON.stringify(options)).scales;
+            scales.x.title.text = text.x;
+            scales.y.title.text = text.y;
+            scales.y.min = min;
+            scales.y.max = max;
+            scales.y.ticks.stepSize = gap;
+
+            setOptions({
+                ...options,
+                scales,
+                plugins: {
+                    ...options.plugins,
+                    tooltip: {
+                        ...options.plugins.tooltip,
+                        borderColor,
+                        callbacks: {
+                            ...options.plugins.tooltip.callbacks,
+                            label,
+                        },
+                    },
+                },
+            });
+        }
+    }, [text, min, max, gap]);
 
     return (
         <div id="chart_bar" style={{height: 600, width: "100%"}}>
             <Bar
-                options={{
-                    ...options,
-                    scales,
-                    plugins: {
-                        ...options.plugins,
-                        tooltip: {
-                            ...options.plugins.tooltip,
-                            borderColor,
-                            callbacks: {
-                                ...options.plugins.tooltip.callbacks,
-                                label,
-                            },
-                        },
-                    },
-                }}
+                options={options}
                 data={{
                     labels: labels,
                     datasets: datasets,
@@ -115,103 +126,106 @@ export const BLine =
     )
 }
 
-let options = {
-    maintainAspectRatio: false,
-    scales: {
-        x: {
-            title: {
-                font: {
-                    size: 16,
-                    weight: 600,
+const basicOptions = () => {
+    return {
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                title: {
+                    font: {
+                        size: 16,
+                        weight: 600,
+                    },
+                    color: 'black',
+                    display: true,
                 },
-                color: 'black',
-                display: true,
-            },
-            ticks: {
-                padding: 12,
-                stepSize: 1,
-                font: {
-                    size: 16,
-                    weight: 600,
+                ticks: {
+                    padding: 12,
+                    stepSize: 1,
+                    font: {
+                        size: 16,
+                        weight: 600,
+                    },
                 },
-            },
-            grid: {
-                lineWidth: 0
-            },
-        },
-        y: {
-            min: 12,
-            max: 18,
-            title: {
-                font: {
-                    size: 16,
-                    weight: 600,
-                },
-                color: 'black',
-                display: true,
-            },
-            ticks: {
-                padding: 8,
-                stepSize: 1,
-                font: {
-                    size: 16,
-                    weight: 600,
+                grid: {
+                    lineWidth: 0
                 },
             },
-        },
-    },
-    events: ['mouseout', 'mousemove', 'click'],
-    interaction: {
-        intersect: false,
-        mode: 'index',
-    },
-    plugins: {
-        datalabels: {
-            color: 'rgb(255, 255, 255)',
-            font: {
-                size: 14,
-                weight: 600,
-            },
-            borderWidth: (data) => {
-                if (data.dataset.kind === 'main') return 3;
-            },
-            borderRadius: 50,
-            borderColor: 'rgb(80, 80, 80)',
-            backgroundColor: 'rgb(80, 80, 80)',
-            clamp: true,
-            clip: true,
-            anchor: 'end',
-            align: '-90',
-            offset: 4,
-            formatter: function (value, context){
-                let result = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                return result;
-            },
-            display: function(context) {
-                return 1;
+            y: {
+                min: 12,
+                max: 18,
+                title: {
+                    font: {
+                        size: 16,
+                        weight: 600,
+                    },
+                    color: 'black',
+                    display: true,
+                },
+                ticks: {
+                    padding: 8,
+                    stepSize: 1,
+                    font: {
+                        size: 16,
+                        weight: 600,
+                    },
+                },
             },
         },
-        legend: {
-            display: false
+        events: ['mouseout', 'mousemove', 'click'],
+        interaction: {
+            intersect: false,
+            mode: 'index',
         },
-        tooltip: {
-            displayColors: false,
-            borderColor: 'black',
-            backgroundColor: 'white',
-            titleFont: {
-                size: 16,
+        plugins: {
+            datalabels: {
+                color: 'rgb(255, 255, 255)',
+                font: {
+                    size: 14,
+                    weight: 600,
+                },
+                borderWidth: (data) => {
+                    if (data.dataset.kind === 'main') return 3;
+                },
+                borderRadius: 50,
+                borderColor: 'rgb(80, 80, 80)',
+                backgroundColor: 'rgb(80, 80, 80)',
+                clamp: true,
+                clip: true,
+                anchor: 'end',
+                align: '-90',
+                offset: 4,
+                formatter: function (value, context){
+                    // let result = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    // return result;
+                    return value;
+                },
+                display: function(context) {
+                    return 1;
+                },
             },
-            titleColor: 'black',
-            bodyFont: {
-                size: 15,
+            legend: {
+                display: false
             },
-            bodyColor: 'black',
-            borderWidth: 2,
-            callbacks: {
+            tooltip: {
+                displayColors: false,
+                borderColor: 'black',
+                backgroundColor: 'white',
+                titleFont: {
+                    size: 16,
+                },
+                titleColor: 'black',
+                bodyFont: {
+                    size: 15,
+                },
+                bodyColor: 'black',
+                borderWidth: 2,
+                callbacks: {
+                },
             },
         },
-    },
-};
+    };
+}
 
 const mainDataset = (data, element) =>  {
     return {

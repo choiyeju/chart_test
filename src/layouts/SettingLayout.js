@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
 import { useRecoilState } from "recoil";
-import { chartOptionsState, chartTypeState } from "stores";
+import {chartDatasState, chartOptionsState, chartTypeState} from "stores";
 
 export const SettingLayout = ({children}) => {
     const [settingType, setSettingType] = useState('axes');
     const [chartType, setChartType] = useRecoilState(chartTypeState);
 
+    const [chartDatas, setChartDatas] = useRecoilState(chartDatasState);
     const [chartOptions, setChartOptions] = useRecoilState(chartOptionsState);
 
     const handleChangeText = (e, axis) => {
@@ -14,17 +15,13 @@ export const SettingLayout = ({children}) => {
         setChartOptions({ ...chartOptions, text });
     };
 
-    // useEffect(() => {
-    //     if (chartType === 'bline') {
-    //         if (values) setBLineValues(values);
-    //         else setValues(blineValues);
-    //         // console.log(values);
-    //     } else if (!values && chartType === 'line') {
-    //
-    //     } else if (!values && chartType === 'bar') {
-    //
-    //     }
-    // }, [values]);
+    const handleClickButton = () => {
+        let datas = JSON.parse(JSON.stringify(chartDatas)).datas;
+        datas[0].pop();
+        datas[0].push(17.0);
+        console.log(datas);
+        setChartDatas({ ...chartDatas, datas });
+    };
 
     if (!chartOptions) return <>로딩중</>;
 
@@ -35,6 +32,7 @@ export const SettingLayout = ({children}) => {
                     <>
                         x: <input value={chartOptions.text.x} onChange={e => handleChangeText(e, "x")} /><br/>
                         y: <input value={chartOptions.text.y} onChange={e => handleChangeText(e, "y")} /><br/>
+                        <button onClick={handleClickButton}>BUTTON</button>
                     </> :
                     settingType === 'color'?
                     <>

@@ -13,7 +13,7 @@ const ChartCustom = () => {
     
     const [isSetting, setIsSetting] = useState(false);
     const [, setChartType] = useRecoilState(chartTypeState);
-    const [, setChartDatas] = useRecoilState(chartDatasState);
+    const [chartDatas, setChartDatas] = useRecoilState(chartDatasState);
     const [chartOptions, setChartOptions] = useRecoilState(chartOptionsState);
 
     const handleClickButton = (type, labels, datas, options) => {
@@ -29,6 +29,8 @@ const ChartCustom = () => {
     useEffect(() => {
         if (!chartOptions) setChartOptions(initOptions);
     }, [chartOptions]);
+
+    if (!chartOptions) <>로딩중...</>
 
     return (
         <>
