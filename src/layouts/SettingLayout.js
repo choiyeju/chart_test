@@ -1,13 +1,16 @@
 import React, {useEffect, useState} from "react";
 import { useRecoilState } from "recoil";
-import {chartDatasState, chartOptionsState, chartTypeState} from "stores";
+import { chartOptionsState, chartTypeState } from "stores";
 
 export const SettingLayout = ({children}) => {
     const [settingType, setSettingType] = useState('axes');
     const [chartType, setChartType] = useRecoilState(chartTypeState);
 
-    const [chartDatas, setChartDatas] = useRecoilState(chartDatasState);
     const [chartOptions, setChartOptions] = useRecoilState(chartOptionsState);
+
+    const handleSelectType = (e) => {
+        setSettingType(e.target.value);
+    }
 
     const handleChangeText = (e, axis) => {
         const text = JSON.parse(JSON.stringify(chartOptions.text));
@@ -15,36 +18,33 @@ export const SettingLayout = ({children}) => {
         setChartOptions({ ...chartOptions, text });
     };
 
-    const handleClickButton = () => {
-        let datas = JSON.parse(JSON.stringify(chartDatas)).datas;
-        datas[0].pop();
-        datas[0].push(17.0);
-        console.log(datas);
-        setChartDatas({ ...chartDatas, datas });
-    };
-
     if (!chartOptions) return <>로딩중</>;
 
     return (
         <div className="setting">
             <div className="setting_sidebar">
-                {settingType === 'axes'?
+                <select onChange={e => handleSelectType(e)}>
+                    <option value="axes">axes</option>
+                    <option value="color">color</option>
+                    <option value="datalabels">datalabels</option>
+                    <option value="tooltip">tooltip</option>
+                </select><br/>
+                {settingType === 'axes' ?
                     <>
-                        x: <input value={chartOptions.text.x} onChange={e => handleChangeText(e, "x")} /><br/>
-                        y: <input value={chartOptions.text.y} onChange={e => handleChangeText(e, "y")} /><br/>
-                        <button onClick={handleClickButton}>BUTTON</button>
+                        x: <input value={chartOptions.text.x} onChange={e => handleChangeText(e, "x")}/><br/>
+                        y: <input value={chartOptions.text.y} onChange={e => handleChangeText(e, "y")}/><br/>
                     </> :
-                    settingType === 'color'?
-                    <>
-                        color
-                    </>:
-                settingType === "datalabels"?
-                    <>
-                        datalabels
-                    </>:
-                    <>
-                        tooltip
-                    </>
+                    settingType === 'color' ?
+                        <>
+                            color
+                        </> :
+                        settingType === "datalabels" ?
+                            <>
+                                datalabels
+                            </> :
+                            <>
+                                tooltip
+                            </>
                 }
             </div>
             {children}
