@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import { BLine } from "./BLine";
-import { initValue } from "./BLine/data";
+import { initValues } from "./BLine/data";
 
 export const Charts = (props) => {
     const { type } = props;
@@ -14,7 +14,7 @@ export const Charts = (props) => {
     if (type === "bline") {
         return (
             <BLine
-                {...initValue}
+                {...initValues}
                 {...props}
             />
         );

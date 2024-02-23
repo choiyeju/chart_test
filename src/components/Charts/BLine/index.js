@@ -8,6 +8,7 @@ export const BLine =
         min,
         max,
         gap,
+
         labels,
         datas,
         elements,
@@ -42,6 +43,9 @@ export const BLine =
     };
 
     // plugins.tooltip.callbacks
+    const borderColor = () => {
+        return elements[0].pointBackgroundColor;
+    };
     const label = (data) => {
         if (data.dataset.kind === "main") {
             return ` Body weight: ${data.parsed.y} g`;
@@ -61,16 +65,23 @@ export const BLine =
 
     useEffect(() => {
         let newDatasets = datasets.slice();
-        newDatasets[0] = {
-            ...datasets[0],
-            borderWidth: lineBorderWidth(0),
-        };
-        newDatasets[1] = {
-            ...datasets[1],
-            borderColor: lineBorderColor(elements[1].borderColor.match(/\d+/g)),
-            pointBackgroundColor: lineBorderColor(elements[1].pointBackgroundColor.match(/\d+/g)),
-            pointBorderColor: lineBorderColor(elements[1].pointBorderColor.match(/\d+/g)),
-        };
+
+        for (let i = 0; i < newDatasets.length - 1; i++) {
+            const dataset = newDatasets[i];
+            if (dataset.kind === 'main') {
+                newDatasets[i] = {
+                    ...datasets[i],
+                    borderWidth: lineBorderWidth(0),
+                };
+            } else if (dataset.kind === 'side') {
+                newDatasets[i] = {
+                    ...datasets[i],
+                    borderColor: lineBorderColor(elements[1].borderColor.match(/\d+/g)),
+                    pointBackgroundColor: lineBorderColor(elements[1].pointBackgroundColor.match(/\d+/g)),
+                    pointBorderColor: lineBorderColor(elements[1].pointBorderColor.match(/\d+/g)),
+                };
+            }
+        }
         setDatasets(newDatasets);
     }, [isHover]);
 
@@ -84,6 +95,7 @@ export const BLine =
                         ...options.plugins,
                         tooltip: {
                             ...options.plugins.tooltip,
+                            borderColor,
                             callbacks: {
                                 ...options.plugins.tooltip.callbacks,
                                 label,
@@ -155,22 +167,22 @@ let options = {
     },
     plugins: {
         datalabels: {
-            color: 'black',
+            color: 'rgb(255, 255, 255)',
             font: {
                 size: 14,
                 weight: 600,
             },
             borderWidth: (data) => {
-                if (data.dataset.kind === 'main') return 1;
+                if (data.dataset.kind === 'main') return 3;
             },
-            borderRadius: 8,
-            borderColor: 'black',
-            backgroundColor: 'rgba(255, 255, 0, .1)',
+            borderRadius: 50,
+            borderColor: 'rgb(80, 80, 80)',
+            backgroundColor: 'rgb(80, 80, 80)',
             clamp: true,
             clip: true,
             anchor: 'end',
             align: '-90',
-            offset: 0,
+            offset: 4,
             formatter: function (value, context){
                 let result = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                 return result;
@@ -184,7 +196,7 @@ let options = {
         },
         tooltip: {
             displayColors: false,
-            borderColor: 'rgb(135, 206, 235)',
+            borderColor: 'black',
             backgroundColor: 'white',
             titleFont: {
                 size: 16,
@@ -201,30 +213,26 @@ let options = {
     },
 };
 
-const mainDataset = (data, elements) =>  {
+const mainDataset = (data, element) =>  {
     return {
         type: 'line',
-        kind: 'main',
         data,
 
-        ...elements,
-        pointHoverRadius: elements.pointRadius + 3.5,
+        ...element,
+        pointHoverBackgroundColor: element.pointBackgroundColor,
+        pointHoverRadius: element.pointRadius + 3.5,
 
         tension: 0.3,
     }
 }
 
-const sideDataset = (data, elements, borderColor, pointBackgroundColor, pointBorderColor) => {
+const sideDataset = (data, element) => {
     return {
         type: 'line',
         data,
 
-        ...elements,
-        pointHoverBorderWidth: elements.pointBorderWidth,
-
-        // borderColor,
-        // pointBackgroundColor,
-        // pointBorderColor,
+        ...element,
+        pointHoverBorderWidth: element.pointBorderWidth,
 
         borderDash: [6, 6],
         datalabels: {
