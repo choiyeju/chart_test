@@ -1,20 +1,25 @@
 import React, {useEffect} from 'react';
+import {useRecoilState} from "recoil";
+
 import { BLine } from "./BLine";
 import { initValues } from "./BLine/data";
+import { blineState } from "recoil/bline/atom";
 
 export const Charts = (props) => {
     const { type } = props;
+    const [blineValues, setBLineValues] = useRecoilState(blineState);
 
     useEffect(() => {
-        // elements
-        // recoil을 통하여 type에 따른 저장 값을 가져온다
-        // 저장된 값이 없으면 initValue를 넣는다
-    }, []);
+        // 만약 api에서 가져온 값이 있으면 그 값을 대입힌다
+        setBLineValues(initValues);
+    }, [blineValues]);
+
+    if (!blineValues) return <>데이터 가져오는 중...</>
 
     if (type === "bline") {
         return (
             <BLine
-                {...initValues}
+                {...blineValues}
                 {...props}
             />
         );
