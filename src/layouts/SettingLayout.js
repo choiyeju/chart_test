@@ -9,6 +9,11 @@ export const SettingLayout = ({children}) => {
 
     const [chartOptions, setChartOptions] = useRecoilState(chartOptionsState);
 
+    const [isShow, setIsShow] = useState(false);
+    const [elNum, setElNum] = useState(0);
+    const [optionColor, setOptionColor] = useState({ top: 60, option: "borderColor"});
+    const selectColors = [{ top: 60, option: "borderColor"}, { top: 120, option: "pointBackgroundColor"}];
+
     const changeColor2RGB = (color) => {
         const rgbList = color.match(/\d+/g);
         return {
@@ -26,7 +31,6 @@ export const SettingLayout = ({children}) => {
         setSettingType(e.target.value);
     }
 
-    console.log(chartOptions);
     const handleChangeText = (e, axis) => {
         const text = JSON.parse(JSON.stringify(chartOptions.text));
         text[axis] = e.target.value;
@@ -38,13 +42,13 @@ export const SettingLayout = ({children}) => {
         event.preventDefault();
 
         const elements = JSON.parse(JSON.stringify(chartOptions)).elements;
-        elements[0].borderColor = changeRGB2Color(selectedColor.rgb);
+        elements[0][optionColor.option] = changeRGB2Color(selectedColor.rgb);
         setChartOptions({ ...chartOptions, elements, });
     };
 
     const handleChangeComplete = (color) => {
         const elements = JSON.parse(JSON.stringify(chartOptions)).elements;
-        elements[0].borderColor = changeRGB2Color(color.rgb);
+        elements[0][optionColor.option] = changeRGB2Color(color.rgb);
         setChartOptions({ ...chartOptions, elements, });
     };
 
@@ -65,14 +69,35 @@ export const SettingLayout = ({children}) => {
                         y: <input value={chartOptions.text.y} onChange={e => handleChangeText(e, "y")}/><br/>
                     </> :
                     settingType === 'color' ?
-                        <>
-                            <SketchPicker
-                                // color={color}
-                                color={changeColor2RGB(chartOptions.elements[0].borderColor)}
-                                onChange={handleChangeSketchPicker}
-                                onChangeComplete={ handleChangeComplete }
-                            />
-                        </> :
+                        <div className="color_box">
+                            {selectColors.map(({top, option}, idx) => {
+                                return (
+                                    <div key={idx}>
+                                        {option}
+                                        <button
+                                            className="color_line"
+                                            style={{backgroundColor: chartOptions.elements[0][option]}}
+                                            onClick={() => {
+                                                setOptionColor({ top, option });
+                                                setIsShow(!isShow);
+                                            }}
+                                        >
+                                            {chartOptions.elements[0][option]}
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                            {isShow &&
+                                <div className="color_palette" style={{top: optionColor.top}}>
+                                    <div className="color_palette_background" onClick={() => setIsShow(false)}/>
+                                    <SketchPicker
+                                        color={changeColor2RGB(chartOptions.elements[elNum][optionColor.option])}
+                                        onChange={handleChangeSketchPicker}
+                                        onChangeComplete={handleChangeComplete}
+                                    />
+                                </div>
+                            }
+                        </div> :
                         settingType === "datalabels" ?
                             <>
                                 datalabels
