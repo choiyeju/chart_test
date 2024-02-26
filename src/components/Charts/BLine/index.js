@@ -81,7 +81,7 @@ export const BLine =
                 basicDataset(max),
             ]);
         }
-    }, [datas]);
+    }, [datas, elements]);
 
     useEffect(()=>{
         if (text) {
