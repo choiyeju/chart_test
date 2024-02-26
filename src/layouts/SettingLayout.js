@@ -12,6 +12,7 @@ export const SettingLayout = ({children}) => {
     const [isShow, setIsShow] = useState(false);
     const [elNum, setElNum] = useState(0);
     const [optionColor, setOptionColor] = useState({ top: 60, option: "borderColor"});
+    const [presetColors, setPresetColors] = useState([]);
     const selectColors = [{ top: 60, option: "borderColor"}, { top: 120, option: "pointBackgroundColor"}];
 
     const changeColor2RGB = (color) => {
@@ -52,6 +53,17 @@ export const SettingLayout = ({children}) => {
         setChartOptions({ ...chartOptions, elements, });
     };
 
+    const handleAddPresetColors = () => {
+        let newPresetColors = presetColors.slice();
+
+        newPresetColors.unshift(chartOptions.elements[elNum][optionColor.option]);
+        newPresetColors = Array.from(new Set(newPresetColors));
+        if (newPresetColors.length > 8) newPresetColors.pop();
+
+        setPresetColors(newPresetColors);
+        setIsShow(!isShow);
+    }
+
     if (!chartOptions) return <>로딩중</>;
 
     return (
@@ -89,11 +101,12 @@ export const SettingLayout = ({children}) => {
                             })}
                             {isShow &&
                                 <div className="color_palette" style={{top: optionColor.top}}>
-                                    <div className="color_palette_background" onClick={() => setIsShow(false)}/>
+                                    <div className="color_palette_background" onClick={handleAddPresetColors}/>
                                     <SketchPicker
                                         color={changeColor2RGB(chartOptions.elements[elNum][optionColor.option])}
                                         onChange={handleChangeSketchPicker}
                                         onChangeComplete={handleChangeComplete}
+                                        presetColors={presetColors}
                                     />
                                 </div>
                             }
